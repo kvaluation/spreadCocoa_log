@@ -35,7 +35,7 @@ function spreadMailAttachedCocoaLogZip() {
             
            if(file.hasNext()){
 
-           const targetFile = file.next(); 
+           const targetFile = file.next(); 　　//なんかおかしいので修正中（2021/5/16）
            const attachedFileID = targetFile.getId() ;
            targetFile.setName(filename); //ファイル名変更。
 
