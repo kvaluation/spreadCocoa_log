@@ -1,0 +1,77 @@
+function spreadMailAttachedCocoaLogZip() {
+
+ //■■　添付ファイル保存先の設定　■■
+ // ☆メール添付されるcocoa_log.zipを保存するGoogle DriveのフォルダーID
+ const attachedFileFolderID = ' ここにフォルダーIDをいれる '
+
+ //■■　gmail検索条件の設定　■■
+ // ☆ 受信メールにcocoaLogのラベルをつけるようにし、添付ファイルあり、スター付き、ラベルcocoaLogの条件で受信メールを検索
+ let condition;
+ condition = "has:attachment";  //添付あり
+ condition += " is:starred label:cocoaLog"  //スター付き & cocoaLogラベル（gmailのフィルターで添付ファイルにスターを付けておく。）
+
+ const search_mail = GmailApp.search(condition);
+ const messeges = GmailApp.getMessagesForThreads(search_mail);
+  
+  Logger.log(condition, messeges);
+
+ //■■　検索条件conditionでの検索と保存　■■ 
+ const attachedFileFolder = DriveApp.getFolderById(attachedFileFolderID);
+  
+  for(var i = 0; i < messeges.length; i++) { //検索結果を一つずつ取り出す
+   
+    for(var j = 0; j < messeges[i].length; j++) { //スレッドの場合ここを複数回実行
+     
+      const attach = messeges[i][j].getAttachments();
+      const day = messeges[i][j].getDate(); //取り出したメールの日付を取得
+      const strDay = Utilities.formatDate(day , "JST", "yyyy_MM_dd");
+      const senderName = messeges[i][j].getFrom();//取り出したメールの送信者名を取得
+     
+        for(var k = 0; k < attach.length; k++){
+        const filename = strDay + '_' + senderName + '_' + attach[k].getName();
+        attachedFileFolder.createFile(attach[k]); //ファイル保存
+        const file = attachedFileFolder.getFilesByName(attach[k].getName());
+
+            
+           if(file.hasNext()){
+
+           const targetFile = file.next(); 
+           const attachedFileID = targetFile.getId() ;
+           targetFile.setName(filename); //ファイル名変更。
+
+           console.log(senderName);
+
+            //■■　保存したzipファイルのcsvを新しいスプレッドシートに展開　■■ 
+           const zipFile = DriveApp.getFileById(attachedFileID);
+           const blobs = Utilities.unzip(zipFile.getBlob());
+           const ssName = zipFile.getName();
+           const spreadSheet = SpreadsheetApp.create(ssName);
+
+            for (const blob of blobs) {
+    
+             const csv = blob.getDataAsString();
+             const shName = blob.getName();
+             const sheet = spreadSheet.insertSheet(shName);
+             const values = Utilities.parseCsv(csv);
+             sheet.getRange(1, 1, values.length, values[0].length).setValues(values);
+
+            }
+
+            console.log(spreadSheet.getUrl());
+           }
+
+         }
+
+     
+      messeges[i][j].unstar(); //処理済みのメッセージのスターをはずすつもりが上手くいかない
+    }
+  }
+
+   
+}
+
+// 参考
+// https://note.com/bets_inc/n/n222ac80b9cc6
+// http://www.initialsite.com/w01/14041
+// https://tonari-it.com/gas-gmail-isstarred-star/
+// https://negimochi.work/gas-google-drive/
