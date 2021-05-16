@@ -2,8 +2,7 @@ function spreadMailAttachedCocoaLogZip() {
 
  //■■　添付ファイル保存先の設定　■■
  // ☆メール添付されるcocoa_log.zipを保存するGoogle DriveのフォルダーID
- const attachedFileFolderID = '1KAtNXjzXtC92OfwQ6Ccw-mVkC_J6-QI5'
- //1KAtNXjzXtC92OfwQ6Ccw-mVkC_J6-QI5　は　kval.jp/mydrive/10_ENmyDrive/Attached, 従前のkenji.haruと共有
+ const attachedFileFolderID = 'ここにフォルダーIDを記入'
 
  //■■　gmail検索条件の設定　■■
  // ☆ 受信メールにcocoaLogのラベルをつけるようにし、添付ファイルあり、スター付き、ラベルcocoaLogの条件で受信メールを検索
